@@ -36,9 +36,9 @@ export const befriendUser = async (req: Request, res: Response) => {
             userToBefriendId
         )
 
-      res.status(200).send({
-        message: "You are now a friend of this user. Treat her/him well, because that's what friendship is all about.",
-      });
+        res.status(200).send({
+            message: "You are now a friend of this user. Treat her/him well, because that's what friendship is all about.",
+        });
       
     } catch (e) {
         res.status(400).send({

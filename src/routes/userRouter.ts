@@ -13,4 +13,4 @@ userRouter.post("/login", login);
 userRouter.get("/profile", getUserProfile);
 userRouter.get("/:id", getUser);
 userRouter.get("/befriend", befriendUser);
-userRouter.get("/unfriend", unfriendUser);
+userRouter.delete("/unfriend", unfriendUser);

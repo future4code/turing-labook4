@@ -1,4 +1,4 @@
-import { Post, PostAndUserNameOutputDTO } from "../model/Post";
+import { Post, PostAndUserNameOutputDTO, SearchPostDTO } from "../model/Post";
 import { BaseDatabase } from "./BaseDatabase";
 
 export class PostDatabase extends BaseDatabase {
@@ -43,7 +43,8 @@ export class PostDatabase extends BaseDatabase {
     public async getPostInfoAndUserName(): Promise<PostAndUserNameOutputDTO[]> {
   
       const result = await this.getConnection().raw(`
-      select r.*, u.name from labook_posts p
+      SELECT *, u.id, u.name
+      FROM labook_posts p
       JOIN labook_users u
       ON p.author_id = u.id;
       `);
@@ -62,7 +63,32 @@ export class PostDatabase extends BaseDatabase {
       
       return recipes;  
     }
+  
+    public async searchPost(searchData: SearchPostDTO): Promise<PostAndUserNameOutputDTO[]> {
+        try {
+            const resultsPerPage: number = 5
+            const offset: number = resultsPerPage * (searchData.page - 1)
+
+            const result = await this.getConnection().raw(`
+            SELECT * FROM ${PostDatabase.TABLE_NAME} p
+            WHERE description LIKE "%${searchData.description.toLocaleLowerCase()}%"
+            ORDERBY ${searchData.orderBy} ${searchData.orderType}
+            LIMIT BY ${resultsPerPage}
+            OFFSET ${offset}
+            `);
+            
+            return result[0];  
+        } catch(err) {
+            throw new Error(err.sqlMessage)
+        }
+    }
     
+    public async deletePost(post_id: string): Promise<void> {
+        await this.getConnection()
+        .del()
+        .from(PostDatabase.TABLE_NAME)
+        .where({ post_id });
+    }
 }
 
 export enum POST_TYPE {

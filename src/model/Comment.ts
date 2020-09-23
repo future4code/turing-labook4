@@ -28,6 +28,6 @@ export type CommentOutputDTO = {
     comment_id: string,
     comment_message: string,
     user_id: string,
-    post_id: string
-    created_at: Date,
+    post_id: string,
+    created_at: string
 }

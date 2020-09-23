@@ -30,5 +30,12 @@ export class UserDatabase extends BaseDatabase {
   
       return User.toUserModel(result[0]);
     }
+  
+    public async deleteUser(id: string): Promise<void> {
+      await this.getConnection()
+        .del()
+        .from(UserDatabase.TABLE_NAME)
+        .where({ id });
+    }
 
 }

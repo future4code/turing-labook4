@@ -37,3 +37,10 @@ export type PostAndUserNameOutputDTO = {
     post_type: POST_TYPE,
     author_id: string
 }
+
+export interface SearchPostDTO {
+    description: string,
+    orderBy: string,
+    orderType: string,
+    page: number
+}
