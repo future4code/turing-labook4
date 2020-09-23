@@ -1,4 +1,5 @@
 import { PostDatabase } from "../data/PostDatabase";
+import { PostAndUserNameOutputDTO, SearchPostDTO } from "../model/Post";
 import { Authenticator } from "../services/Authenticator";
 
 export class PostBusiness {
@@ -17,4 +18,34 @@ export class PostBusiness {
 
         await postDataBase.deletePost(post.getId());
     }
+
+    public async searchPost(searchData: SearchPostDTO): Promise<PostAndUserNameOutputDTO[]> {
+        const validOrderByValues = ["description", "created_at"]
+        const validOrderTypeValues = ["ASC", "DESC"]
+
+        if(!validOrderByValues.includes(searchData.orderBy)) {
+            throw new Error("Insert a valid order. It can be 'description' or 'created_at'.")
+        }
+
+        if(!validOrderTypeValues.includes(searchData.orderType)) {
+            throw new Error("Insert a valid order. It can be 'ASC' or 'DESC'.")
+        }
+
+        if(!searchData.description) {
+            throw new Error("Please inform some word or sentence for the search.")
+        }
+
+        if(searchData.page < 0) {
+            throw new Error("The page should be bigger than 0.")
+        }
+
+        const result = await new PostDatabase().searchPost(searchData)
+
+        if(!result.length) {
+            throw new Error("No post was found. Perhaps you should be the first person to write about that.")
+        }
+
+        return result
+    }
+
 }

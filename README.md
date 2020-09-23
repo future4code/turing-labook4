@@ -42,5 +42,5 @@ O LaBook é uma rede social com o objetivo de promover a conexão e interação 
 ### 13. Search Post
     by query, orderBy, orderType & page
 
-### 14. Delete Post
+### 14. Delete
     user, post or comment

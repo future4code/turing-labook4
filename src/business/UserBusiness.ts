@@ -5,6 +5,7 @@ import { Authenticator } from "../services/Authenticator";
 import { User } from "../model/User";
 import { PostDatabase } from "../data/PostDatabase";
 import { Post, PostAndUserNameOutputDTO, SearchPostDTO } from "../model/Post";
+import { UsersFriendshipDatabase } from "../data/UsersFriendshipDatabase";
 
 export class UserBusiness {
 
@@ -75,6 +76,58 @@ export class UserBusiness {
 
     }
 
+    public async befriendUser(token: string, friend_id: string): Promise<void> {
+        const authenticator = new Authenticator();
+        const authenticatorData = authenticator.verify(token);
+
+        if(!authenticatorData.id) {
+            throw new Error("You don't have permission to do that.")
+        }
+
+        const userDatabase = new UserDatabase();
+        const friendExists = await userDatabase.getUserById(friend_id);
+
+        if(!friendExists) {
+            throw new Error('This user does not exists. Are you trying to be friend with a ghost?')
+        }
+
+        const usersFriendshipDatabase = new UsersFriendshipDatabase();
+
+        const isFriend = await usersFriendshipDatabase.checkFriendship(authenticatorData.id, friend_id);
+
+        if(isFriend) {
+            throw new Error('This user is already your friend.')
+        }
+        
+        await usersFriendshipDatabase.befriendUser(authenticatorData.id, friend_id);
+    }
+
+    public async unfriendUser(token: string, friend_id: string): Promise<void> {
+        const authenticator = new Authenticator();
+        const authenticatorData = authenticator.verify(token);
+
+        if(!authenticatorData.id) {
+            throw new Error("You don't have permission to do that.")
+        }
+
+        const userDatabase = new UserDatabase();
+        const friendExists = await userDatabase.getUserById(friend_id);
+
+        if(!friendExists) {
+            throw new Error('This user does not exists. Are you trying to unfriend with a ghost?')
+        }
+
+        const usersFriendshipDatabase = new UsersFriendshipDatabase();
+
+        const isFriend = await usersFriendshipDatabase.checkFriendship(authenticatorData.id, friend_id);
+
+        if(!isFriend) {
+            throw new Error('This user is not your friend anyway.')
+        }
+        
+        await usersFriendshipDatabase.unfriendUser(authenticatorData.id, friend_id);
+    }
+
     public async deleteUser(token: string): Promise<void> {
 
         const authenticator = new Authenticator();
@@ -85,34 +138,4 @@ export class UserBusiness {
         
         await userDatabase.deleteUser(user.getId());
     }
-
-    public async searchPost(searchData: SearchPostDTO): Promise<PostAndUserNameOutputDTO[]> {
-        const validOrderByValues = ["description", "created_at"]
-        const validOrderTypeValues = ["ASC", "DESC"]
-
-        if(!validOrderByValues.includes(searchData.orderBy)) {
-            throw new Error("Insert a valid order. It can be 'description' or 'created_at'.")
-        }
-
-        if(!validOrderTypeValues.includes(searchData.orderType)) {
-            throw new Error("Insert a valid order. It can be 'ASC' or 'DESC'.")
-        }
-
-        if(!searchData.description) {
-            throw new Error("Please inform some word or sentence for the search.")
-        }
-
-        if(searchData.page < 0) {
-            throw new Error("The page should be bigger than 0.")
-        }
-
-        const result = await new PostDatabase().searchPost(searchData)
-
-        if(!result.length) {
-            throw new Error("No post was found. Perhaps you should be the first person to write about that.")
-        }
-
-        return result
-    }
-
 }

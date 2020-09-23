@@ -29,18 +29,25 @@ export class UsersFriendshipDatabase extends BaseDatabase {
         });
     }
   
-    public async checkFriendship(userId:string, friendId: string): Promise<void> {
-      await this.getConnection()
-        .select()
-        .from(UsersFriendshipDatabase.TABLE_NAME)
-        .where({
-            user_id: userId,
-            friend_id: friendId,
-        })
-        .or.where({
-            user_id: friendId,
-            friend_id: userId,
-        });
+    public async checkFriendship(userId:string, friendId: string): Promise<any> {
+        try {
+            const result = await this.getConnection()
+            .select()
+            .from(UsersFriendshipDatabase.TABLE_NAME)
+            .where({
+                user_id: userId,
+                friend_id: friendId,
+            })
+            .or.where({
+                user_id: friendId,
+                friend_id: userId,
+            });
+
+            return result[0]
+
+        } catch(err) {
+            throw new Error(err.sqlMessage)
+        }
     }
     
 }

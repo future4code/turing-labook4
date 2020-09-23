@@ -1,6 +1,6 @@
 import express from 'express';
 import { CommentController } from '../controller/CommentController';
-import { PostController } from '../controller/postController';
+import { PostController } from '../controller/PostController';
 import { commentPost } from '../endpoints/commentPost';
 import { createPost } from '../endpoints/createPost';
 import { getFeed } from '../endpoints/getFeed';

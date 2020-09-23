@@ -15,8 +15,8 @@ export class PostController {
                 page: Number(req.query.page) || 1
             }
 
-            const userBusiness = new UserBusiness();
-            const result = await userBusiness.searchPost(searchData);
+            const postBusiness = new PostBusiness();
+            const result = await postBusiness.searchPost(searchData);
 
             res.status(200).send(result)
         } catch (err) {
