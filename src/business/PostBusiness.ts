@@ -1,8 +1,30 @@
-import { PostDatabase } from "../data/PostDatabase";
-import { PostAndUserNameOutputDTO, SearchPostDTO } from "../model/Post";
+import moment from "moment";
+import { PostDatabase, POST_TYPE } from "../data/PostDatabase";
+import { Post, PostAndUserNameOutputDTO, SearchPostDTO } from "../model/Post";
 import { Authenticator } from "../services/Authenticator";
+import { IdGenerator } from "../services/IdGenerator";
 
 export class PostBusiness {
+    public async createPost(token: string, photo: string, description: string, post_type: POST_TYPE) {
+        const creationDate = moment().format("YYYY-MM-DD HH:mm:ss");
+
+        const authenticator = new Authenticator();
+        const authenticationData = authenticator.verify(token);
+        const userId = authenticationData.id;
+    
+        const idGenerator = new IdGenerator();
+        const postId = idGenerator.generateId();
+    
+        const postDatabase = new PostDatabase();
+        await postDatabase.createPost(
+            postId,
+            photo,
+            description,
+            creationDate,
+            post_type,
+            userId
+        )
+    };
 
     public async deletePost(token: string, postId: string): Promise<void> {
 

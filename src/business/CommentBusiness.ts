@@ -1,7 +1,30 @@
+import moment from "moment";
 import { CommentsDatabase } from "../data/CommentsDatabase";
 import { Authenticator } from "../services/Authenticator";
+import { IdGenerator } from "../services/IdGenerator";
 
 export class CommentBusiness {
+
+    public async commentPost(token: string, message: string, postId: string): Promise<void> {
+    
+            const creationDate = moment().format("YYYY-MM-DD HH:mm:ss");
+
+            const authenticator = new Authenticator();
+            const authenticationData = authenticator.verify(token);
+            const userId = authenticationData.id;
+    
+            const idGenerator = new IdGenerator();
+            const commentId = idGenerator.generateId();
+    
+            const commentsDatabase = new CommentsDatabase();
+            await commentsDatabase.createPost(
+                commentId,
+                message,
+                userId,
+                postId,
+                creationDate
+            )
+    };
 
     public async deleteComment(token: string, commentId: string): Promise<void> {
 
