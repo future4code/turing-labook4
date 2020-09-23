@@ -1,4 +1,4 @@
-# labook-template
+# labook-backend
 Repositório do projeto Labook
 
 O LaBook é uma rede social com o objetivo de promover a conexão e interação entre seus mais diversos usuários. Os usuários podem criar posts de dois tipos ("evento" ou "normal"), comentá-los e curti-los também.
@@ -38,3 +38,9 @@ O LaBook é uma rede social com o objetivo de promover a conexão e interação 
 
 ### 12. Refresh Token
     access_token & refresh_token
+
+### 13. Search Post
+    by query, orderBy, orderType & page
+
+### 14. Delete Post
+    user, post or comment
