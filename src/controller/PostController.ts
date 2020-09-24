@@ -2,11 +2,8 @@ import { Request, Response } from "express";
 import moment from "moment";
 import { PostBusiness } from "../business/PostBusiness";
 import { BaseDatabase } from "../data/BaseDatabase";
-import { FeedDatabase } from "../data/FeedDatabase";
-import { LikesDatabase } from "../data/LikesDatabase";
 import { PostDatabase } from "../data/PostDatabase";
 import { SearchPostDTO } from "../model/Post";
-import { Authenticator } from "../services/Authenticator";
 
 export class PostController {
     public createPost = async (req: Request, res: Response) => {
@@ -55,22 +52,11 @@ export class PostController {
     public getFeed = async (req: Request, res: Response) => {
         try {
             const token = req.headers.authorization as string;
-            const authenticator = new Authenticator();
-            const authenticationData = authenticator.verify(token);
-            const userId = authenticationData.id;
-    
-            const feedDatabase = new FeedDatabase();
-            const feed = await feedDatabase.getFeed(userId);
-            const mappedFeed = feed.map((item: any) => ({
-                post_id: item.post_id,
-                photo: item.photo,
-                description: item.description,
-                created_at: moment(item.created_at).format('DD/MM/YYYY'),
-                post_type: item.post_type,
-                author_id: item.author_id
-            }))
-    
-            res.status(200).send(mappedFeed);
+            
+            const postBusiness = new PostBusiness();
+            const feed = await postBusiness.getFeed(token);
+            
+            res.status(200).send(feed);
           
         } catch (e) {
             res.status(400).send({
@@ -82,20 +68,11 @@ export class PostController {
 
     public getFeedByPostType = async (req: Request, res: Response) => {
         try {
-            const postType = req.params.postType;
+            const post_type = req.params.postType;
 
-            const feedDatabase = new FeedDatabase();
-            const feed = await feedDatabase.getFeedByPostType(postType);
-            const mappedFeed = feed.map((item: any) => ({
-                post_id: item.post_id,
-                photo: item.photo,
-                description: item.description,
-                created_at: moment(item.created_at).format('DD/MM/YYYY'),
-                post_type: item.post_type,
-                author_id: item.author_id
-            }))
-    
-            res.status(200).send(mappedFeed);
+            const postBusiness = new PostBusiness();
+            const feed = await postBusiness.getFeedByPostType(post_type);
+            res.status(200).send(feed);
           
         } catch (e) {
             res.status(400).send({
@@ -128,35 +105,11 @@ export class PostController {
     public likePost = async (req: Request, res: Response) => {
         try {
             const token = req.headers.authorization as string;
-            const postId = req.params.postId;
+            const post_id = req.params.postId;
     
-            const authenticator = new Authenticator();
-            const authenticatorData = authenticator.verify(token);
-            const userId = authenticatorData.id;
-    
-            if(!postId) {
-                throw new Error('Insert a valid post id.')
-            }
-    
-            const postDatabase = new PostDatabase();
-            const post = await postDatabase.getPostById(postId);
-    
-            if(!post) {
-                throw new Error('This post does not exists.')
-            }
-    
-            const likesDatabase = new LikesDatabase();
-            const isLiked = likesDatabase.checkIfLiked(userId, postId);
-    
-            if(isLiked) {
-                throw new Error('You already like this post.')
-            }
-            
-            await likesDatabase.likePost(
-                postId,
-                userId
-            )
-    
+            const postBusiness = new PostBusiness();
+            await postBusiness.unlikePost(token, post_id);
+
             res.status(200).send({
                 message: "You liked this post successfully.",
             });
@@ -171,35 +124,11 @@ export class PostController {
     public unlikePost = async (req: Request, res: Response) => {
         try {
             const token = req.headers.authorization as string;
-            const postId = req.params.postId;
+            const post_id = req.params.postId;
     
-            const authenticator = new Authenticator();
-            const authenticatorData = authenticator.verify(token);
-            const userId = authenticatorData.id;
-    
-            if(!postId) {
-                throw new Error('Insert a valid post id.')
-            }
-    
-            const postDatabase = new PostDatabase();
-            const post = await postDatabase.getPostById(postId);
-    
-            if(!post) {
-                throw new Error('This post does not exists.')
-            }
-    
-            const likesDatabase = new LikesDatabase();
-            const isLiked = likesDatabase.checkIfLiked(userId, postId);
-    
-            if(!isLiked) {
-                throw new Error('You already does not like this post.')
-            }
-            
-            await likesDatabase.unlikePost(
-                postId,
-                userId
-            )
-    
+            const postBusiness = new PostBusiness();
+            await postBusiness.unlikePost(token, post_id);
+
             res.status(200).send({
                 message: "You unliked this post successfully.",
             });

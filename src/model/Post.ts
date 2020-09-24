@@ -35,7 +35,8 @@ export type PostAndUserNameOutputDTO = {
     description: string,
     created_at: Date,
     post_type: POST_TYPE,
-    author_id: string
+    user_id: string,
+    user_name: string
 }
 
 export interface SearchPostDTO {

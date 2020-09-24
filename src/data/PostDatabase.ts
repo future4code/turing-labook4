@@ -49,19 +49,20 @@ export class PostDatabase extends BaseDatabase {
       ON p.author_id = u.id;
       `);
   
-      const recipes: PostAndUserNameOutputDTO[] = [];
+      const post: PostAndUserNameOutputDTO[] = [];
       for(let post of result[0]){
-        recipes.push({
+        post.push({
            post_id: post.post_id,
            photo: post.photo,
            description: post.description,
            created_at: post.created_at,
            post_type: post.post_type,
-           author_id: post.author_id
+           user_id: post.id,
+           user_name: post.name
         });
       }  
       
-      return recipes;  
+      return post;  
     }
   
     public async searchPost(searchData: SearchPostDTO): Promise<PostAndUserNameOutputDTO[]> {
@@ -71,9 +72,9 @@ export class PostDatabase extends BaseDatabase {
 
             const result = await this.getConnection().raw(`
             SELECT * FROM ${PostDatabase.TABLE_NAME} p
-            WHERE description LIKE "%${searchData.description.toLocaleLowerCase()}%"
-            ORDERBY ${searchData.orderBy} ${searchData.orderType}
-            LIMIT BY ${resultsPerPage}
+            WHERE p.description LIKE "%${searchData.description.toLocaleLowerCase()}%"
+            ORDER BY p.${searchData.orderBy} ${searchData.orderType}
+            LIMIT ${resultsPerPage}
             OFFSET ${offset}
             `);
             

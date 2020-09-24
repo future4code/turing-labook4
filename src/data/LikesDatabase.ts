@@ -21,14 +21,15 @@ export class LikesDatabase extends BaseDatabase {
         })
     }
   
-    public async checkIfLiked(userId:string, postId: string): Promise<void> {
-      await this.getConnection()
+    public async checkIfLiked(userId:string, postId: string): Promise<any> {
+      const result = await this.getConnection()
         .select()
         .from(LikesDatabase.TABLE_NAME)
         .where({
             post_id: postId,
             user_id: userId,
         });
+      return result[0]
     }
     
 }

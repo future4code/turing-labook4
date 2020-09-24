@@ -1,6 +1,7 @@
 import dotenv from 'dotenv';
 import express, { Request, Response } from 'express';
 import { AddressInfo } from 'net';
+import { FeedDatabase } from './data/FeedDatabase';
 import { postRouter } from './routes/postRouter';
 import { userRouter } from './routes/userRouter';
 

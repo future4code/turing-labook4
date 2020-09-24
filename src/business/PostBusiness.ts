@@ -1,4 +1,6 @@
 import moment from "moment";
+import { FeedDatabase } from "../data/FeedDatabase";
+import { LikesDatabase } from "../data/LikesDatabase";
 import { PostDatabase, POST_TYPE } from "../data/PostDatabase";
 import { Post, PostAndUserNameOutputDTO, SearchPostDTO } from "../model/Post";
 import { Authenticator } from "../services/Authenticator";
@@ -22,6 +24,84 @@ export class PostBusiness {
             description,
             creationDate,
             post_type,
+            userId
+        )
+    };
+
+    public async getFeed(token: string): Promise<PostAndUserNameOutputDTO[]> {  
+        const authenticator = new Authenticator();
+        const authenticationData = authenticator.verify(token);
+        const userId = authenticationData.id;
+    
+        const feedDatabase = new FeedDatabase();
+        const feed = await feedDatabase.getFeed(userId);
+
+        return feed
+    };
+
+    public async getFeedByPostType(postType: string): Promise<PostAndUserNameOutputDTO[]> {
+            
+            const feedDatabase = new FeedDatabase();
+            const feed = await feedDatabase.getFeedByPostType(postType);
+
+            return feed
+    };
+
+    
+    public async likePost(token: string, post_id: string) {
+        const authenticator = new Authenticator();
+        const authenticatorData = authenticator.verify(token);
+        const userId = authenticatorData.id;
+    
+        if(!post_id) {
+            throw new Error('Insert a valid post id.')
+        }
+    
+        const postDatabase = new PostDatabase();
+        const post = await postDatabase.getPostById(post_id);
+    
+        if(!post) {
+            throw new Error('This post does not exists.')
+        }
+    
+        const likesDatabase = new LikesDatabase();
+        const isLiked = likesDatabase.checkIfLiked(userId, post_id);
+    
+        if(isLiked) {
+            throw new Error('You already like this post.')
+        }
+            
+        await likesDatabase.likePost(
+            post_id,
+            userId
+        )
+    };
+
+    public async unlikePost(token: string, post_id: string) {
+        const authenticator = new Authenticator();
+        const authenticatorData = authenticator.verify(token);
+        const userId = authenticatorData.id;
+    
+        if(!post_id) {
+            throw new Error('Insert a valid post id.')
+        }
+    
+        const postDatabase = new PostDatabase();
+        const post = await postDatabase.getPostById(post_id);
+    
+        if(!post) {
+            throw new Error('This post does not exists.')
+        }
+    
+        const likesDatabase = new LikesDatabase();
+        const isLiked = likesDatabase.checkIfLiked(userId, post_id);
+    
+        if(!isLiked) {
+            throw new Error('You already does not like this post.')
+        }
+            
+        await likesDatabase.unlikePost(
+            post_id,
             userId
         )
     };
