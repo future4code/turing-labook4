@@ -1,11 +1,11 @@
-import { Post } from "./Post"
+import { Post, PostAndUserNameOutputDTO } from "./Post"
 
 export class User {
     constructor(
         private id: string,
         private name: string,
         private email: string,
-        private posts?: Post[],
+        private posts?: PostAndUserNameOutputDTO[],
         private password?: string
     ){ }
 
@@ -19,7 +19,7 @@ export class User {
     setName(name: string) { this.name = name};
     setEmail(email: string) { this.email = email};
     setPassword(password: string) { this.password = password};
-    setPosts(posts: Post[]) {this.posts = posts};
+    setPosts(posts: PostAndUserNameOutputDTO[]) {this.posts = posts};
 
    static toUserModel(user: any): User{
        return new User(user.id, user.name, user.email);

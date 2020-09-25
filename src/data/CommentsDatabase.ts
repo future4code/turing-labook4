@@ -45,27 +45,30 @@ export class CommentsDatabase extends BaseDatabase {
       return comments;
     }
   
-    public async getPostInfoAndUserName(): Promise<CommentOutputDTO[]> {
+    public async getCommentInfoAndUserName(postId: string): Promise<CommentOutputDTO[]> {
   
       const result = await this.getConnection().raw(`
       SELECT *, u.id, u.name
       FROM labook_comments c
       JOIN labook_users u
-      ON c.user_id = u.id;
+      ON c.user_id = u.id
+      WHERE post_id = "${postId}"
       `);
   
-      const recipes: CommentOutputDTO[] = [];
+      const comments: CommentOutputDTO[] = [];
+      
       for(let comment of result[0]){
-        recipes.push({
+        comments.push({
             comment_id: comment.comment_id,
             comment_message: comment.comment_message,
-            user_id: comment.user_id,
             post_id: comment.post_id,
-            created_at: comment.created_at
+            created_at: comment.created_at,
+            user_id: comment.user_id,
+            user_name: comment.name
         });
       }  
       
-      return recipes;  
+      return comments;  
     }
     
     public async deleteComment(comment_id: string): Promise<void> {

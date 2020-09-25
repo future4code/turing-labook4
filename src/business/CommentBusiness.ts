@@ -31,12 +31,16 @@ export class CommentBusiness {
         const authenticator = new Authenticator();
         const authenticationData = authenticator.verify(token);
 
-        if(!authenticationData) {
-            throw new Error("You don't have permission to do that.")
-        }
-
         const commentDataBase = new CommentsDatabase();
         const comment = await commentDataBase.getCommentById(commentId);
+
+        if(!comment.getId()) {
+            throw new Error("This comment doesn't exists.")
+        }
+
+        if(authenticationData.id !== comment.getUserId()) {
+            throw new Error("You don't have permission to do that.")
+        }
 
         await commentDataBase.deleteComment(comment.getId());
     }

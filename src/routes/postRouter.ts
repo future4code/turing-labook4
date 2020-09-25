@@ -16,6 +16,6 @@ postRouter.get("/:postId", postController.getPost);
 postRouter.delete("/:postId/delete", postController.deletePost);
 
 postRouter.post("/:postId/comment", commentController.commentPost);
-postRouter.delete("/:postId/comment/:commentId/delete", commentController.deleteComment);
+postRouter.delete("/:postId/comment/delete", commentController.deleteComment);
 postRouter.post("/:postId/like", postController.likePost);
 postRouter.delete("/:postId/unlike", postController.unlikePost);

@@ -118,7 +118,7 @@ export class PostBusiness {
         const postDataBase = new PostDatabase();
         const post = await postDataBase.getPostById(postId);
 
-        await postDataBase.deletePost(post.getId());
+        await postDataBase.deletePost(post.post_id);
     }
 
     public async searchPost(searchData: SearchPostDTO): Promise<PostAndUserNameOutputDTO[]> {

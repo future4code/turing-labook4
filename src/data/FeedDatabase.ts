@@ -1,5 +1,6 @@
 import { Post, PostAndUserNameOutputDTO } from "../model/Post";
 import { BaseDatabase } from "./BaseDatabase";
+import { CommentsDatabase } from "./CommentsDatabase";
 
 export class FeedDatabase extends BaseDatabase {
     public async getFeed(userId: string): Promise<PostAndUserNameOutputDTO[]> {
@@ -15,6 +16,10 @@ export class FeedDatabase extends BaseDatabase {
       `);
       const posts: PostAndUserNameOutputDTO[] = [];
       for(let post of result[0]){
+
+        const commentsDatabase = new CommentsDatabase();
+        const comments = await commentsDatabase.getCommentInfoAndUserName(post.post_id);
+        
         posts.push({
            post_id: post.post_id,
            photo: post.photo,
@@ -22,7 +27,8 @@ export class FeedDatabase extends BaseDatabase {
            created_at: post.created_at,
            post_type: post.post_type,
            user_id: post.id,
-           user_name: post.name
+           user_name: post.name,
+           comments: comments
         });
       }  
       
@@ -40,6 +46,10 @@ export class FeedDatabase extends BaseDatabase {
       
       const posts: PostAndUserNameOutputDTO[] = [];
       for(let post of result[0]){
+
+        const commentsDatabase = new CommentsDatabase();
+        const comments = await commentsDatabase.getCommentInfoAndUserName(post.post_id);
+
         posts.push({
            post_id: post.post_id,
            photo: post.photo,
@@ -47,7 +57,8 @@ export class FeedDatabase extends BaseDatabase {
            created_at: post.created_at,
            post_type: post.post_type,
            user_id: post.id,
-           user_name: post.name
+           user_name: post.name,
+           comments: comments
         });
       }  
       

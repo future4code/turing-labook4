@@ -29,13 +29,13 @@ export class CommentController {
     public deleteComment = async (req: Request, res: Response) => {
         try {
             const token = req.headers.authorization as string;
-            const commentId = req.params.commentId;
+            const commentId = req.body.comment_id;
             
             const commentBusiness = new CommentBusiness();
             await commentBusiness.deleteComment(token, commentId);
     
             res.status(200).send({
-                message: "The user was deleted successfully"
+                message: "The comment was deleted successfully"
             });
         } catch (e) {
             res.status(400).send({

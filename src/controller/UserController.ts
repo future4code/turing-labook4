@@ -11,10 +11,11 @@ export class UserController {
                 name: req.body.name,
                 email: req.body.email,
                 password: req.body.password,
+                device: req.body.device,
             }
     
             const userBusiness = new UserBusiness();
-            const token = await userBusiness.signUp(user.name, user.email, user.password);
+            const token = await userBusiness.signUp(user.name, user.email, user.password, user.device);
     
             res.status(200).send({
                 message: 'User created successfully.',
@@ -34,10 +35,11 @@ export class UserController {
             const user = {
                 email: req.body.email,
                 password: req.body.password,
+                device: req.body.device,
             }
     
             const userBusiness = new UserBusiness();
-            const token = await userBusiness.login(user.email, user.password);
+            const token = await userBusiness.login(user.email, user.password, user.device);
     
             res.status(200).send({
                 message: 'User logged in successfully.',
@@ -51,6 +53,28 @@ export class UserController {
         }
         await BaseDatabase.destroyConnection();
     };
+
+    public refreshToken = async (req: Request, res: Response) => {
+        try {
+            const refreshToken = req.body.refreshToken;
+            const device = req.body.device;
+
+            const userBusiness = new UserBusiness();
+            const token = await userBusiness.refreshToken(refreshToken, device);
+    
+            res.status(200).send({
+                message: 'The token was refreshed successfully.',
+                token
+            });
+          
+        } catch (e) {
+            res.status(400).send({
+                message: e.message
+            })
+        }
+        await BaseDatabase.destroyConnection();
+        
+    }
     
     public getUserProfile = async (req: Request, res: Response) => {
         try {

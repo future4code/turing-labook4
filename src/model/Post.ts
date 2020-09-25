@@ -1,4 +1,5 @@
 import { POST_TYPE } from "../data/PostDatabase"
+import { CommentOutputDTO } from "./Comment"
 
 export class Post {
     constructor(
@@ -36,7 +37,8 @@ export type PostAndUserNameOutputDTO = {
     created_at: Date,
     post_type: POST_TYPE,
     user_id: string,
-    user_name: string
+    user_name: string,
+    comments: CommentOutputDTO[]
 }
 
 export interface SearchPostDTO {
