@@ -1,5 +1,6 @@
 import { Post, PostAndUserNameOutputDTO, SearchPostDTO } from "../model/Post";
 import { BaseDatabase } from "./BaseDatabase";
+import { CommentsDatabase } from "./CommentsDatabase";
 
 export class PostDatabase extends BaseDatabase {
     private static TABLE_NAME = 'labook_posts';
@@ -16,28 +17,51 @@ export class PostDatabase extends BaseDatabase {
         }).into(PostDatabase.TABLE_NAME)
     }
   
-    public async getPostById(postId: string): Promise<Post> {
+    public async getPostById(postId: string): Promise<PostAndUserNameOutputDTO> {
       const result = await this.getConnection()
         .select('*')
         .from(PostDatabase.TABLE_NAME)
         .where({ post_id: postId });
   
-      return Post.toPostModel(result[0]);
+      
+      const commentsDatabase = new CommentsDatabase();
+      const comments = await commentsDatabase.getCommentInfoAndUserName(postId);
+
+      const post = {
+        ...result[0],
+        comments
+      }
+
+      return post;
     }
   
-    public async getPostByUserId(authorId: string): Promise<Post[]> {
+    public async getPostByUserId(authorId: string): Promise<PostAndUserNameOutputDTO[]> {
       const result = await this.getConnection()
         .select('*')
         .from(PostDatabase.TABLE_NAME)
         .where({ author_id: authorId });
   
-      const posts: Post[] = [];
   
-      for (let post of result) {
-        posts.push(Post.toPostModel(post));
-      }
+        const posts: PostAndUserNameOutputDTO[] = [];
+
+        for(let post of result){
   
-      return posts;
+          const commentsDatabase = new CommentsDatabase();
+          const comments = await commentsDatabase.getCommentInfoAndUserName(post.post_id);
+  
+          posts.push({
+             post_id: post.post_id,
+             photo: post.photo,
+             description: post.description,
+             created_at: post.created_at,
+             post_type: post.post_type,
+             user_id: post.id,
+             user_name: post.name,
+             comments: comments
+          });
+        }
+        
+        return posts;  
     }
   
     public async getPostInfoAndUserName(): Promise<PostAndUserNameOutputDTO[]> {
@@ -49,19 +73,25 @@ export class PostDatabase extends BaseDatabase {
       ON p.author_id = u.id;
       `);
   
-      const recipes: PostAndUserNameOutputDTO[] = [];
+      const posts: PostAndUserNameOutputDTO[] = [];
       for(let post of result[0]){
-        recipes.push({
+
+        const commentsDatabase = new CommentsDatabase();
+        const comments = await commentsDatabase.getCommentInfoAndUserName(post.post_id);
+
+        post.push({
            post_id: post.post_id,
            photo: post.photo,
            description: post.description,
            created_at: post.created_at,
            post_type: post.post_type,
-           author_id: post.author_id
+           user_id: post.id,
+           user_name: post.name,
+           comments: comments
         });
       }  
       
-      return recipes;  
+      return posts;  
     }
   
     public async searchPost(searchData: SearchPostDTO): Promise<PostAndUserNameOutputDTO[]> {
@@ -71,13 +101,31 @@ export class PostDatabase extends BaseDatabase {
 
             const result = await this.getConnection().raw(`
             SELECT * FROM ${PostDatabase.TABLE_NAME} p
-            WHERE description LIKE "%${searchData.description.toLocaleLowerCase()}%"
-            ORDERBY ${searchData.orderBy} ${searchData.orderType}
-            LIMIT BY ${resultsPerPage}
+            WHERE p.description LIKE "%${searchData.description.toLocaleLowerCase()}%"
+            ORDER BY p.${searchData.orderBy} ${searchData.orderType}
+            LIMIT ${resultsPerPage}
             OFFSET ${offset}
             `);
             
-            return result[0];  
+          const posts: PostAndUserNameOutputDTO[] = [];
+          for(let post of result[0]){
+
+            const commentsDatabase = new CommentsDatabase();
+            const comments = await commentsDatabase.getCommentInfoAndUserName(post.post_id);
+
+            post.push({
+              post_id: post.post_id,
+              photo: post.photo,
+              description: post.description,
+              created_at: post.created_at,
+              post_type: post.post_type,
+              user_id: post.id,
+              user_name: post.name,
+              comments: comments
+            });
+          }  
+          
+          return posts;  
         } catch(err) {
             throw new Error(err.sqlMessage)
         }
@@ -88,6 +136,13 @@ export class PostDatabase extends BaseDatabase {
         .del()
         .from(PostDatabase.TABLE_NAME)
         .where({ post_id });
+    }
+    
+    public async deleteAllPostsFromUser(author_id: string): Promise<void> {
+        await this.getConnection()
+        .del()
+        .from(PostDatabase.TABLE_NAME)
+        .where({ author_id });
     }
 }
 
