@@ -1,4 +1,5 @@
 import moment from "moment";
+import { CommentsDatabase } from "../data/CommentsDatabase";
 import { FeedDatabase } from "../data/FeedDatabase";
 import { LikesDatabase } from "../data/LikesDatabase";
 import { PostDatabase, POST_TYPE } from "../data/PostDatabase";
@@ -28,13 +29,13 @@ export class PostBusiness {
         )
     };
 
-    public async getFeed(token: string): Promise<PostAndUserNameOutputDTO[]> {  
+    public async getFeed(token: string, page: number): Promise<PostAndUserNameOutputDTO[]> {  
         const authenticator = new Authenticator();
         const authenticationData = authenticator.verify(token);
         const userId = authenticationData.id;
     
         const feedDatabase = new FeedDatabase();
-        const feed = await feedDatabase.getFeed(userId);
+        const feed = await feedDatabase.getFeed(userId, page);
 
         return feed
     };
@@ -114,6 +115,9 @@ export class PostBusiness {
         if(!authenticationData) {
             throw new Error("You don't have permission to do that.")
         }
+
+        const commentsDatabase = new CommentsDatabase();
+        await commentsDatabase.deleteAllCommentsFromPost(postId)
 
         const postDataBase = new PostDatabase();
         const post = await postDataBase.getPostById(postId);

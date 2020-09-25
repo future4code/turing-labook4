@@ -137,6 +137,13 @@ export class PostDatabase extends BaseDatabase {
         .from(PostDatabase.TABLE_NAME)
         .where({ post_id });
     }
+    
+    public async deleteAllPostsFromUser(author_id: string): Promise<void> {
+        await this.getConnection()
+        .del()
+        .from(PostDatabase.TABLE_NAME)
+        .where({ author_id });
+    }
 }
 
 export enum POST_TYPE {

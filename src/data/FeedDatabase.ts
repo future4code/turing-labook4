@@ -3,7 +3,10 @@ import { BaseDatabase } from "./BaseDatabase";
 import { CommentsDatabase } from "./CommentsDatabase";
 
 export class FeedDatabase extends BaseDatabase {
-    public async getFeed(userId: string): Promise<PostAndUserNameOutputDTO[]> {
+    public async getFeed(userId: string, page: number): Promise<PostAndUserNameOutputDTO[]> {
+      const resultsPerPage: number = 5
+      const offset: number = resultsPerPage * (page - 1)
+
       const result = await this.getConnection().raw(`
         SELECT post.post_id, post.photo, post.description, post.created_at, post.post_type, user.id, user.name
         FROM labook_posts as post
@@ -12,14 +15,17 @@ export class FeedDatabase extends BaseDatabase {
         AND friends.user_id = '${userId}'
         JOIN labook_users as user
         ON post.author_id = user.id
-        ORDER BY post.created_at DESC;
+        ORDER BY post.created_at DESC
+        LIMIT ${resultsPerPage}
+        OFFSET ${offset}
       `);
+      
       const posts: PostAndUserNameOutputDTO[] = [];
       for(let post of result[0]){
 
         const commentsDatabase = new CommentsDatabase();
         const comments = await commentsDatabase.getCommentInfoAndUserName(post.post_id);
-        
+
         posts.push({
            post_id: post.post_id,
            photo: post.photo,

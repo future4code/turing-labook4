@@ -77,5 +77,19 @@ export class CommentsDatabase extends BaseDatabase {
         .from(CommentsDatabase.TABLE_NAME)
         .where({ comment_id });
     }
+    
+    public async deleteAllCommentsFromUser(user_id: string): Promise<void> {
+        await this.getConnection()
+        .del()
+        .from(CommentsDatabase.TABLE_NAME)
+        .where({ user_id });
+    }
+    
+    public async deleteAllCommentsFromPost(post_id: string): Promise<void> {
+        await this.getConnection()
+        .del()
+        .from(CommentsDatabase.TABLE_NAME)
+        .where({ post_id });
+    }
 
 }

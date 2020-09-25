@@ -7,6 +7,8 @@ import { PostDatabase } from "../data/PostDatabase";
 import { Post, PostAndUserNameOutputDTO, SearchPostDTO } from "../model/Post";
 import { UsersFriendshipDatabase } from "../data/UsersFriendshipDatabase";
 import { RefreshTokenDatabase } from "../data/RefreshTokenDatabase";
+import { CommentsDatabase } from "../data/CommentsDatabase";
+import { PostBusiness } from "./PostBusiness";
 
 export class UserBusiness {
 
@@ -182,6 +184,18 @@ export class UserBusiness {
 
         const authenticator = new Authenticator();
         const authenticationData = authenticator.verify(token);
+
+        const userCommentsDatabase = new CommentsDatabase();
+        await userCommentsDatabase.deleteAllCommentsFromUser(authenticationData.id)
+
+        const postsDatabase = new PostDatabase();
+        const postsByUser = await postsDatabase.getPostByUserId(authenticationData.id);
+
+        for(let post of postsByUser) {
+            const postBusiness = new PostBusiness();
+            await postBusiness.deletePost(token, post.post_id)
+
+        }
 
         const userDatabase = new UserDatabase();
         const user = await userDatabase.getUserById(authenticationData.id);

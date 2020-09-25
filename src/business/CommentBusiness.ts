@@ -44,4 +44,23 @@ export class CommentBusiness {
 
         await commentDataBase.deleteComment(comment.getId());
     }
+
+    public async deleteAllCommentsFromUser (token: string, commentId: string): Promise<void> {
+
+        const authenticator = new Authenticator();
+        const authenticationData = authenticator.verify(token);
+
+        const commentDataBase = new CommentsDatabase();
+        const comment = await commentDataBase.getCommentById(commentId);
+
+        if(!comment.getId()) {
+            throw new Error("This comment doesn't exists.")
+        }
+
+        if(authenticationData.id !== comment.getUserId()) {
+            throw new Error("You don't have permission to do that.")
+        }
+
+        await commentDataBase.deleteAllCommentsFromUser(comment.getUserId());
+    }
 }
