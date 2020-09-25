@@ -198,8 +198,6 @@ export class UserBusiness {
         }
 
         const userDatabase = new UserDatabase();
-        const user = await userDatabase.getUserById(authenticationData.id);
-        
-        await userDatabase.deleteUser(user.getId());
+        await userDatabase.deleteUser(authenticationData.id);
     }
 }
