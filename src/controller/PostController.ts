@@ -2,7 +2,6 @@ import { Request, Response } from "express";
 import moment from "moment";
 import { PostBusiness } from "../business/PostBusiness";
 import { BaseDatabase } from "../data/BaseDatabase";
-import { CommentsDatabase } from "../data/CommentsDatabase";
 import { PostDatabase } from "../data/PostDatabase";
 import { SearchPostDTO } from "../model/Post";
 

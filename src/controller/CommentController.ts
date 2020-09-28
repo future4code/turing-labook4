@@ -1,7 +1,6 @@
 import { Request, Response } from "express";
 import { CommentBusiness } from "../business/CommentBusiness";
 import { BaseDatabase } from "../data/BaseDatabase";
-import moment from "moment";
 
 export class CommentController {
 
